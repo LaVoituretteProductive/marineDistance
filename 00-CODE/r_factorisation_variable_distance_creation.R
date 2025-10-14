@@ -4,6 +4,8 @@ library(sf)
 library(terra)
 library(dplyr)
 
+setwd("M:/BiodivMed/Distance_to_port_MPA_canyon/")
+
 # -------------------------------------------------
 # ---------------- FONCTIONS ----------------------
 # -------------------------------------------------
@@ -104,11 +106,12 @@ ajouter_stats_a_buffers <- function(buffers, stats_df, prefix) {
 
 # --- Paramètres
 target_crs <- "EPSG:2154"
-chemin_mer      <- "C:/Users/miche/Desktop/09-marieke/res_canyon/07-port/02-donnees_travaillees/inverse_poly.gpkg"
-chemin_transects <- "C:/Users/miche/Downloads/mtdt_6.gpkg"
-chemin_canyons   <- "C:/Users/miche/Desktop/09-marieke/canyon_med.geojson"
-chemin_ports     <- "C:/Users/miche/Desktop/09-marieke/res_canyon/07-port/02-donnees_travaillees/ZonePortuaire_combine_2154_area.gpkg"
-chemin_mpa <- "C:/Users/miche/Downloads/protectionMed_fr_modif_fully.gpkg"
+chemin_mer      <- "./01-DATA/inverse_poly.gpkg"
+chemin_transects <- "./01-DATA/mtdt_6.gpkg"
+chemin_canyons   <- "./01-DATA/canyon_med.geojson"
+chemin_ports     <- "./01-DATA/ZonePortuaire_combine_2154_area.gpkg"
+chemin_mpa <- "./01-DATA/protectionMed_fr_modif_fully.gpkg"
+
 
 # --- Chargement & friction
 layers <- charger_vecteurs(chemin_mer, chemin_transects, chemin_canyons, target_crs)
@@ -148,7 +151,7 @@ buffers_canyon <- traiter_distance(
   buffers = layers$buffers,
   crs_cible = target_crs,
   prefix = "canyon",
-  raster_export_path = "C:/Users/miche/Desktop/09-marieke/res_canyon/06-export/raster_cost_canyon.tif"
+  raster_export_path = "./02-MID/raster_cost_canyon.tif"
 )
 
 # --- Appliquer pour port
@@ -158,7 +161,7 @@ buffers_final <- traiter_distance(
   buffers = buffers_canyon,
   crs_cible = target_crs,
   prefix = "port",
-  raster_export_path = "C:/Users/miche/Desktop/09-marieke/res_canyon/06-export/raster_cost_port.tif"
+  raster_export_path = "./02-MID//raster_cost_port.tif"
 )
 
 # --- Appliquer pour mpa
@@ -168,8 +171,8 @@ buffers_final_bis <- traiter_distance(
   buffers = buffers_final,
   crs_cible = target_crs,
   prefix = "mpa",
-  raster_export_path = "C:/Users/miche/Desktop/09-marieke/res_canyon/06-export/raster_cost_mpa.tif"
+  raster_export_path = "./02-MID/raster_cost_mpa.tif"
 )
 
 # --- Export final
-st_write(buffers_final_bis, "C:/Users/miche/Desktop/09-marieke/res_canyon/07-port/02-donnees_travaillees/buffer_with_dist_canyon_port_mpa_stats.gpkg", delete_dsn = TRUE)
+st_write(buffers_final_bis, "./02-MID/buffer_with_dist_canyon_port_mpa_stats.gpkg", delete_dsn = TRUE)

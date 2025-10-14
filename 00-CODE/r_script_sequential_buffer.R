@@ -4,10 +4,12 @@ library(raster)
 library(gdistance)
 library(dplyr)
 
+setwd("M:/BiodivMed/Distance_to_port_MPA_canyon/")
+
 # --- Paramètres ---
-chemin_buffers <- "C:/Users/miche/Desktop/09-marieke/res_canyon/07-port/02-donnees_travaillees/buffer_with_dist_canyon_port_mpa_stats_v2.gpkg"
-chemin_mer <- "C:/Users/miche/Desktop/09-marieke/res_canyon/07-port/02-donnees_travaillees/inverse_poly.gpkg"
-output_dir <- "C:/Users/miche/Desktop/09-marieke/res_canyon/07-port/01-DATA/05-test_parallel/output_cost_rasters/"
+chemin_buffers <- "./02-MID/buffer_with_dist_canyon_port_mpa_stats.gpkg"
+chemin_mer <- "./01-DATA/inverse_poly.gpkg"
+output_dir <- "./output_cost_rasters/"
 
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 buffer_margin <- 10000 # 10km
