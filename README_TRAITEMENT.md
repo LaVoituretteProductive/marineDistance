@@ -55,7 +55,7 @@ Méthode en 3 étapes :
 
 ### 1. Pipeline du script r_factorisation_variable_distance_creation.R
 
-- L'objectif est de récupérer les valeurs maximum de distance des variables au buffer pour ensuite optimiser le buffer pour la génération de accCost par buffer.
+- Récupérer les valeurs maximum de distance des variables au buffer pour ensuite optimiser le buffer pour la génération de accCost par buffer.
 
 1. Rasteriser Mer + Buffer à 100m
 2. Calcul de 3 accCost par variable AMP/Canyon/Port
@@ -63,7 +63,7 @@ Méthode en 3 étapes :
 
 ### 2. Pipeline du script r_script_sequential_buffer.R
 
-- L'objectif est de générer un raster de distance par buffer pour extraire ensuite les champs de chaque géométrie la plus proche.
+- Générer un raster de distance par buffer pour extraire ensuite les champs de chaque géométrie la plus proche.
 
 1. Rasterisation mer 100m résolution sur la med
 2. Extraction par transect ADNe dist var max parmi les 3 + 10km
@@ -71,7 +71,7 @@ Méthode en 3 étapes :
 
 ### 3. Pipeline du script r_extract_field_var.R
 
-- L'objectif est d'extraire pour chaque champs, les distance min + champs associés par transects.
+- Extraire pour chaque champs, les distance min + champs associés par transects.
 
 1. Itération par buffer des 3 couches et on récupère la distance minimum par variable pour comparer avec la distance initiale.
 2. création du dataframe et export

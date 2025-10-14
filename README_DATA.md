@@ -67,6 +67,7 @@ La création d'un polygone de port se base sur la définition donnée par le San
   - Ports de plaisance (SMCFAC)
   - Stations de sauvetage (RSCSTA)
   - Fonctions portuaires (HRBFAC)
+- Merge dans le fichier combinaison_port_data des données de Corse et de PACA_Occitanie.
 
 ### Données Canyons
 
