@@ -5,18 +5,20 @@ library(gdistance)
 library(dplyr)
 
 setwd("M:/BiodivMed/Distance_to_port_MPA_canyon/")
+setwd("D:/01-backup_data/1-github_repo/08-marineDistance/marineDistance/")
 
 # --- Paramètres ---
-chemin_buffers <- "./02-MID/buffer_with_dist_canyon_port_mpa_stats.gpkg"
-chemin_mer <- "./01-DATA/inverse_poly.gpkg"
-output_dir <- "./output_cost_rasters/"
+chemin_buffers <- "./02-MID/buffer_dist_canyon_port_mpa_union_treshold_shore_50m_fraction.gpkg"
+chemin_mer      <- "./02-MID/zone_limitee_union_par_buffer.gpkg"
+output_dir <- "./output_cost_rasters_50m/"
+# output_dir <- "./output_cost_rasters_outliers_50m/"
 
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-buffer_margin <- 10000 # 10km
+buffer_margin <- 1000 # 1km
 
 # --- Charger friction globale (valeurs = 1 partout) ---
 vect_mer <- vect(chemin_mer)
-r_friction_global <- rast(ext(vect_mer), resolution = 100, crs = crs(vect_mer))
+r_friction_global <- rast(ext(vect_mer), resolution = 50, crs = crs(vect_mer))
 r_friction_global <- rasterize(vect_mer, r_friction_global, field = 1, background = NA)
 
 # Charger buffers
