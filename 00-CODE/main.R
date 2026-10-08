@@ -2,12 +2,12 @@
 install.packages("roxygen2")
 library(roxygen2)
 
-setwd("D:/01-backup_data/1-github_repo/08-marineDistance/test_alone/00-CODE")
+setwd("D:/01-backup_data/1-github_repo/08-marineDistance/git_banyuls_extraction/marineDistance/")
 
-source("./calcul_portuaire/port_creation_data.R")
-source("./calcul_50m/r_distance_creation_50m.R")
+source("./00-CODE/calcul_portuaire/port_creation_data.R")
+source("./00-CODE/calcul_50m/r_distance_creation_50m.R")
 
-setwd("D:/01-backup_data/1-github_repo/08-marineDistance/test_alone")
+setwd("D:/01-backup_data/1-github_repo/08-marineDistance/git_banyuls_extraction/marineDistance/")
 
 # -------------------------------1. Creation port et couche Shore -------------------------------
 
@@ -81,15 +81,19 @@ st_write(zone_totale_mer, "./02-MID/zone_limitee_union_par_buffer.gpkg", delete_
 
 target_crs <- "EPSG:2154"
 chemin_mer      <- "./01-DATA/zone_limitee_union_par_buffer.gpkg"
-chemin_transects <- "./01-DATA/mtdt_6.gpkg"
+chemin_transects <- "./01-DATA/mtdt_replicates_2.0.gpkg"
+
 chemin_canyons   <- "./01-DATA/canyon_med.geojson"
 chemin_ports     <- "./01-DATA/ZonePortuaire_combine_2154_area.gpkg"
 chemin_mpa <- "./01-DATA/protectionMed_fr_modif_fully.gpkg"
 chemin_shore <- "./01-DATA/shore.gpkg"
 chemin_zones <- "./02-MID/zone_limitee_union_par_buffer.gpkg"
-resolution <- 50
+chemin_shore <- "./01-DATA/shore_10m.gpkg"
+
+chemin_mer <- "./01-DATA/mer_banyuls.gpkg"
+
+resolution <- 5
 tampon_sup <- 1000 # 1 km
-chemin_mer <- chemin_zones
 
 # --- Charger les couches ---
 layers <- charger_vecteurs(chemin_mer, chemin_transects, chemin_canyons, chemin_shore, target_crs)
@@ -99,18 +103,22 @@ r_friction <- creer_raster_friction(
   vect_mer = layers$mer,
   resolution = resolution,
   seuil_couverture = 1,
-  export_path = "./02-MID/friction_50m.tif"
+  export_path = "./02-MID/friction_5m.tif"
 )
 
-r_friction <- terra::rast("./02-MID/friction_50m.tif")
+r_friction <- terra::rast("./02-MID/friction_5m.tif")
+
+r_friction <- raster("./02-MID/friction_5m.tif")
+
 
 # --- Calcul de la matrice de transition ---
-tr_geo <- creer_matrice_transition(r_friction)
+tr_geo <- creer_matrice_transition(r_friction, direction=8)
 
-saveRDS(tr_geo, file = "./02-MID/matrice_transition_geocorrected_50m.rds")
+saveRDS(tr_geo, file = "./02-MID/matrice_transition_geocorrected_5m.rds")
 gc()
 
 zone_totale_mer <- st_make_valid(zone_totale_mer)
+zone_totale_mer <- st_make_valid(st_read(chemin_mer))
 
 # 2.3 traiter_distance_zone
 # Raster distance d'une variable + extraction par buffer
@@ -122,7 +130,8 @@ buffers_canyon <- traiter_distance_zone(
   tr_geo = tr_geo,
   zone_limitee = zone_totale_mer,
   seuil_couverture = 1,
-  raster_export_path = "./02-MID/raster_cost_port_fine_seuil0.tif"
+  resolution = 5,
+  raster_export_path = "./02-MID/canyon_5m.tif"
 )
 
 gc()
@@ -135,7 +144,8 @@ buffers_port <- traiter_distance_zone(
   tr_geo = tr_geo,
   zone_limitee = zone_totale_mer,
   seuil_couverture = 1,
-  raster_export_path = "./02-MID/debug_port_fraction.tif"
+  resolution = 5,
+  raster_export_path = "./02-MID/port_5m.tif"
 )
 
 gc()
@@ -148,7 +158,8 @@ buffers_mpa <- traiter_distance_zone(
   tr_geo = tr_geo,
   zone_limitee = zone_totale_mer,
   seuil_couverture = 1,
-  raster_export_path = "./02-MID/debug_mpa_fraction.tif"
+  resolution = 5,
+  raster_export_path = "./02-MID/mpa_5m.tif"
 )
 
 gc()
@@ -161,10 +172,17 @@ buffers_shore <- traiter_distance_zone(
   tr_geo = tr_geo,
   zone_limitee = zone_totale_mer,
   seuil_couverture = 1,
-  raster_export_path = "./02-MID/debug_shore_fraction.tif"
+  resolution = 5,
+  raster_export_path = "./02-MID/shore_5m_10m.tif"
 )
 
 gc()
+
+st_write(buffers_shore, "./02-MID/buffer_dist_canyon_port_mpa_shore10m_5m.gpkg", delete_dsn = TRUE)
+
+
+st_write(buffers_shore, "./02-MID/buffer_dist_canyon_port_mpa_union_treshold_shore_1m_fraction.gpkg", delete_dsn = TRUE)
+
 
 # --- Résultat final ---
 st_write(buffers_shore, "./02-MID/buffer_dist_canyon_port_mpa_union_treshold_shore_50m_fraction.gpkg", delete_dsn = TRUE)

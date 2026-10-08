@@ -2,6 +2,7 @@ library(terra)
 library(dplyr)
 library(gdistance)
 library(raster)
+library(exactextractr)
 
 
 #' 1. Buffer from known distance to win space for friction calcul
@@ -164,10 +165,10 @@ charger_vecteurs <- function(chemin_mer, chemin_transects, chemin_zones, chemin_
 #' @example 
 #' tr_geo <- creer_matrice_transition(r_friction)
 #' @export
-creer_matrice_transition <- function(r_friction) {
+creer_matrice_transition <- function(r_friction, direction=8) {
 
   message("Début création matrice bip bip")
-  tr <- transition(r_friction, function(x) 1 / mean(x), directions = 8)
+  tr <- transition(r_friction, function(x) 1 / mean(x), directions = direction)
   message("Fin création matrice bip bip")
   
   message("Début géocorrection bip bip")
@@ -200,11 +201,35 @@ creer_raster_cout_depuis_tr_geo <- function(tr_geo, coords_sources) {
 #' @return terra object with extracted values of the cost raster
 #' @example 
 #' valData <- extraire_valeurs(raster_cout_proj, buffers)
-extraire_valeurs <- function(raster_cout, vecteur) {
-  return(terra::extract(raster_cout, vect(vecteur), weights = TRUE))
-  # exact_extract(raster_cout, vect(vecteur))
-}
+# extraire_valeurs <- function(raster_cout, vecteur) {
+#   # return(terra::extract(raster_cout, vect(vecteur), weights = TRUE))
+#   return(exact_extract(raster_cout, vect(vecteur)))
+# }
 
+extraire_valeurs <- function(raster, buffers) {
+  
+  if (inherits(buffers, "SpatVector")) {
+    buffers <- sf::st_as_sf(buffers)
+  }
+  
+  res <- exactextractr::exact_extract(raster, buffers)
+  
+  # Transformer la liste (1 élément par buffer)
+  # en un seul data.frame
+  valData <- dplyr::bind_rows(res, .id = "ID")
+  
+  # exact_extract() fournit "coverage_fraction"
+  # qui correspond au poids spatial de chaque pixel
+  valData <- valData %>%
+    dplyr::rename(
+      weight = coverage_fraction
+    ) %>%
+    dplyr::mutate(
+      ID = as.integer(ID)
+    )
+  
+  valData
+}
 
 
 #' 7. Calcul of the distance stats
